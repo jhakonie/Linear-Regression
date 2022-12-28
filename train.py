@@ -4,16 +4,6 @@ import my_class as my
 # muista poistaa
 import numpy as np
 
-# def tweak_learning_rate(regression, losses, y_preds, learning_rate):
-# 	mean_x = regression.xs.sum_add_self() / regression.xs.size
-# 	mean_y = regression.ys.sum_add_self() / regression.ys.size
-# 	test_0 = regression.t[0] + 2 * regression.t[1]
-# 	test_1 = regression.t[0] + 4 * regression.t[1]
-# 	if (test_0 > test_1):
-# 		learning_rate = (test_0 - test_1) / (2 - regression.t[0])
-# 	return learning_rate
-
-
 def train_model(data, learning_rate):
 	iterations = 1000
 	losses = []
@@ -25,37 +15,13 @@ def train_model(data, learning_rate):
 	min_y = min(ys)
 	xs = [(i - min_x) / (max_x - min_x) for i in xs]
 	ys = [(i - min_y) / (max_y - min_y) for i in ys]
-	# print(max_x)
-	# divisor = len(ys)**2 * 100
-	# learning_rate = 1 / divisor
 	learning_rate = 0.1
-	# learning_rate = 0.00015
-	# xs.reverse()
-	# steps = 100 #todo remove
 	regression = my.linear_regression(xs, ys)
 	for i in range(iterations):
 		y_preds = regression.predict(xs)
-		loss = regression.calculate_loss(y_preds)
-		losses.append(loss)
-		# if (i > 0 and losses[i] > losses[i-1]):
-		# 	learning_rate *= -1
-		# learning_rate = tweak_learning_rate(regression, losses, y_preds, learning_rate)
+		# loss = regression.calculate_loss(y_preds)
+		# losses.append(loss)
 		regression.update_t(learning_rate)
-		# if (loss > 100):
-		# 	learning_rate /= 10
-		# 	regression = my.linear_regression(xs, ys)
-			# return train_model(data, learning_rate)
-		# if i % steps == 0:
-		# 	print(iterations, "epochs elapsed") 
-		# 	print("Current accuracy is :", 
-		# 		regression.get_current_accuracy(y_preds))			
-		# 	stop = input("Do you want to stop (y/*)??") 
-		# 	if stop == "y": 
-		# 		break
-
-	print("________________________________________")
-	print(losses)
-	print("________________________________________")
 	return (regression.t[0], regression.t[1])
 
 def estimate_coef(x, y):
@@ -85,6 +51,15 @@ def plot_regression_line(x, y, b):
 	# function to show plot
 	plt.show()
 
+# create a file "coefs.csv" and write the learned thetas there there
+def save_coefs_to_file(coefs):
+	fd = open("coefs.csv", "w")
+	fd.close()
+	fd = open("coefs.csv", "a")
+	fd.write("t0,t1\n")
+	fd.write(str(coefs[0])+","+str(coefs[1]))
+	fd.close()
+
 def test_with_numpy(data):
 	xs = np.array([float(i[0]) for i in data])
 	ys = np.array([float(i[1]) for i in data])
@@ -97,25 +72,15 @@ def test_with_numpy(data):
 	xs = np.array([(i - min_x) / (max_x - min_x) for i in xs])
 	ys = np.array([(i - min_y) / (max_y - min_y) for i in ys])
 	b = train_model(data, 0.0001)
+	save_coefs_to_file(b)
 	plot_regression_line(xs, ys, b)
 	return
 
-def read_data(file_name):
-	fd = open(file_name, "r") #todo: remember to add close fd
-	fd = [x.strip() for x in fd]
-	print(fd)
-	fd.pop(0)
-	data = []
-	for x in fd:
-		values = x.split(",")
-		data.append(values)
-	print(data)
-	return data
 
 def main():
 	if (len(sys.argv) == 2):
 		file_name = sys.argv[1]
-		data = read_data(file_name)
+		data = my.read_csv_to_list(file_name)
 		test_with_numpy(data)
 		# train_model(data)
 	else:
