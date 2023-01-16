@@ -15,7 +15,7 @@ import numpy as np
 
 
 def train_model(data, learning_rate):
-	iterations = 1000
+	iterations = 2000
 	losses = []
 	xs = [float(i[0]) for i in data] #mileage
 	ys = [float(i[1]) for i in data] #price
@@ -53,9 +53,9 @@ def train_model(data, learning_rate):
 		# 	if stop == "y": 
 		# 		break
 
-	print("________________________________________")
-	print(losses)
-	print("________________________________________")
+	# print("________________________________________")
+	# print(losses)
+	# print("________________________________________")
 	return (regression.t[0], regression.t[1])
 
 def estimate_coef(x, y):
@@ -70,6 +70,9 @@ def estimate_coef(x, y):
 	# calculating regression coefficients
 	b_1 = SS_xy / SS_xx
 	b_0 = m_y - b_1*m_x
+	print("b0 is:" + str(b_0))
+	print("b1 is:" + str(b_1))
+	print("========================================")
 	return (b_0, b_1)
 
 def plot_regression_line(x, y, b):
@@ -94,9 +97,21 @@ def test_with_numpy(data):
 	min_x = min(xs)
 	max_y = max(ys)
 	min_y = min(ys)
+	test_ys = ys
+	test_xs = xs
+	x_max_interval = max_x - min_x
+	y_max_interval = max_y - min_y
 	xs = np.array([(i - min_x) / (max_x - min_x) for i in xs])
 	ys = np.array([(i - min_y) / (max_y - min_y) for i in ys])
 	b = train_model(data, 0.0001)
+	denormed_b1 = b[1] * y_max_interval / x_max_interval
+	denormed_b0 = np.sum(test_ys - (test_xs * denormed_b1)) / np.size(xs)
+	# # y = kx + b
+	# calc_y_when_x_is_1 = 
+	print("b0 is:" + str(denormed_b0))#b[0]))
+	print("b1 is:" + str(b[1] * y_max_interval / x_max_interval))
+	# print("b0 is:" + str(b[0]))
+	# print("b1 is:" + str(b[1]))
 	plot_regression_line(xs, ys, b)
 	return
 
@@ -109,7 +124,7 @@ def read_data(file_name):
 	for x in fd:
 		values = x.split(",")
 		data.append(values)
-	print(data)
+	# print(data)
 	return data
 
 def main():
@@ -122,3 +137,8 @@ def main():
 		print("give the path to a csv file as argument")
 
 main()
+
+# y = mx + b
+# y - y0 = (x - x0)m + b
+# m = (y - b) / x
+# b = y - mx
