@@ -1,5 +1,5 @@
 import math
-import numpy as np #todo remove
+import os
 
 #------------------------------------------------------------------------------
 # Array operations - + * and sum for multiplying, adding, substraction and pow
@@ -97,15 +97,11 @@ class arr:
 			result += self.array[i] * self.array[i]
 		return result
 
-#------------------------------------------------------------------------
-# Back propagation
-
-# class value:
-# 	def __init__(self, data, _children = ())
-# 		self.data = data
-# 		self.grad = 0
-# 		self._backward = lambda: None
-# 		self._prev = set(_children)
+	def multiply_scalar(self, scalar):
+		result = []
+		for i in range(self.size):
+			result.append(self.array[i] * scalar)
+		return result
 
 #------------------------------------------------------------------------
 # Linear Regression
@@ -123,32 +119,16 @@ class linear_regression:
 		ys = self.ys
 		xs = self.xs
 		n = float(ys.size)
-		# gradient = self.gradient
-
-		# gradient[0] = 
-		# t0_gradient = 0
-		# t1_gradient = 0
-		# for i in range(n):
-		# 	t0_gradient += -(2/n)
-
-		# ys = np.array(self.ys.array)
-		# y_preds = np.array(y_preds.array)
-		# xs = np.array(self.xs.array)
-		# self.t[0] = self.t[0] - (learning_rate * (1 / n) * np.sum(y_preds - ys))
-		# self.t[1] = self.t[1] - (learning_rate * (1 / n) * np.sum((y_preds - ys) * xs))
 
 		# sum of predicted y-values - true y-values
 		y_difference = y_preds - ys
 		self.t[0] = self.t[0] - (learning_rate * (1 / n) * y_difference.sum_self())
-		# self.t[0] = self.t[0] + (learning_rate * (1 / n) * (ys).sum_substract(y_preds))
-		# sum of predicted y-values - true y-values multiplied by x-values
 		self.t[1] = self.t[1] - (learning_rate * (1 / n) * (y_difference * xs).sum_self())
-		# self.t[1] = self.t[1] + (learning_rate * (1 / n) * (ys - y_preds).sum_multiply(xs))
 
 	def predict(self, xs = []): #estimate_mileage
 		y_preds = []
 		if not xs: xs = self.xs
-		xs = xs if isinstance(xs, arr) else arr(xs) 
+		xs = xs if isinstance(xs, arr) else arr(xs)
 		t = self.t
 		n = xs.size
 		for i in range(n):
@@ -158,13 +138,46 @@ class linear_regression:
 	def calculate_loss(self, y_preds):
 		y_preds = y_preds if isinstance(y_preds, arr) else arr(y_preds)
 		n = self.ys.size
-		J = (1 / (2 * n)) * (y_preds - self.ys).sum_pow()
-		return J
+		loss = (1 / (2 * n)) * (y_preds - self.ys).sum_pow()
+		return loss
 
-	def get_current_accuracy(self, Y_pred): 
-		p, e = Y_pred.array, self.ys.array 
-		n = len(e) 
-		return 1-sum( 
-	   		[abs(p[i]-e[i])/e[i] 
-			for i in range(n) 
-			if e[i] != 0])/n 
+
+
+#------------------------------------------------------------------------
+# csv
+# Reads a csv file and returns a list, where each item a list of items on a row.
+# removes the first row if it's not convertible to float
+
+# def read_csv_to_list(file_name):
+# 	fd = open(file_name, "r")
+# 	read_txt = [x.strip() for x in fd]
+# 	fd.close()
+# 	# print(fd)
+# 	try:
+# 		float(read_txt[0])
+# 	except ValueError:
+# 		read_txt.pop(0)
+# 	data = []
+# 	for x in read_txt:
+# 		values = x.split(",")
+# 		data.append(values)
+# 	# print(data)
+# 	return data
+
+def read_csv_to_list(file_name):
+	exists = os.path.exists(file_name)
+	if (exists):
+		fd = open(file_name, "r") #todo: remember to add close fd
+		fd = [x.strip() for x in fd]
+		# print(fd)
+		fd.pop(0)
+		data = []
+		for x in fd:
+			values = x.split(",")
+			data.append(values)
+		# print(data)
+		fd.close()
+		return data
+	else:
+		print("No file found.")
+		quit()
