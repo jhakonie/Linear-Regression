@@ -11,20 +11,20 @@ def denormalize_coefs(xs, ys, coefs):
 	min_y = min(ys.array)
 	x_diff = max_x - min_x
 	y_diff = max_y - min_y
-	denormed_b1 = coefs[1] * y_diff / x_diff
+	denormed_t1 = coefs[1] * y_diff / x_diff
 	# 
-	# y = b1 * x + b0
-	# b0 = y - b1 * x
+	# y = t1 * x + t0
+	# t0 = y - t1 * x
 	# 
-	# b1 * x
-	xs_multiplied_by_b1 = xs.multiply_scalar(denormed_b1)
-	# y - b1 * x
-	ys_minus_xs_multiplied_by_b1 = ys - xs_multiplied_by_b1
+	# t1 * x
+	xs_multiplied_by_t1 = xs.multiply_scalar(denormed_t1)
+	# y - t1 * x
+	ys_minus_xs_multiplied_by_t1 = ys - xs_multiplied_by_t1
 	# get the sum of the values
-	denormed_b0 = ys_minus_xs_multiplied_by_b1.sum_self()
-	# divide the sum with the number of values
-	denormed_b0 /= xs.size
-	return (denormed_b0, denormed_b1)
+	denormed_t0 = ys_minus_xs_multiplied_by_t1.sum_self()
+	# divide the sum with the numter of values
+	denormed_t0 /= xs.size
+	return (denormed_t0, denormed_t1)
 
 def normalize_list(data):
 	max_x = max(data)
@@ -35,22 +35,28 @@ def normalize_list(data):
 def train_model(data, learning_rate):
 	iterations = 2000
 	losses = []
-	xs_before_normalize = [float(i[0]) for i in data] #mileage
-	ys_before_normalize = [float(i[1]) for i in data] #price
+	# mileage
+	xs_before_normalize = [float(i[0]) for i in data]
+	# price
+	ys_before_normalize = [float(i[1]) for i in data]
+	# normalize data
 	xs = normalize_list(xs_before_normalize)
 	ys = normalize_list(ys_before_normalize)
 	learning_rate = 0.1
 	# declare the linear regression class
 	regression = my.linear_regression(xs, ys)
+	# Train the model with gradient decent:
 	# iterate the regression until it is accurate enough
 	for i in range(iterations):
-		# predict
+		# predict values (price)
 		y_preds = regression.predict(xs)
 		# update thetas
 		regression.update_t(learning_rate)
 	coefs = (regression.t[0], regression.t[1])
+	# convert list of values to my array type
 	xs_before_normalize = my.arr(xs_before_normalize)
 	ys_before_normalize = my.arr(ys_before_normalize)
+	# denormalize coefficients before returning them
 	coefs = denormalize_coefs(xs_before_normalize, ys_before_normalize, coefs)
 	print(coefs)
 	return (coefs)
@@ -61,7 +67,7 @@ def train_model(data, learning_rate):
 # 	# mean of x and y vector
 # 	m_x = np.mean(x)
 # 	m_y = np.mean(y)
-# 	# calculating cross-deviation and deviation about x
+# 	# calculating cross-deviation and deviation about x	
 # 	SS_xy = np.sum(y*x) - n*m_y*m_x
 # 	SS_xx = np.sum(x*x) - n*m_x*m_x
 # 	# calculating regression coefficients
@@ -123,25 +129,6 @@ def save_coefs_to_file(coefs):
 # 	# plot_regression_line(xs, ys, b)
 # 	return
 
-# def read_data(file_name):
-# 	exists = os.path.exists(file_name)
-# 	# print(exists)
-# 	if (exists):
-# 		fd = open(file_name, "r") #todo: remember to add close fd
-# 		fd = [x.strip() for x in fd]
-# 		# print(fd)
-# 		fd.pop(0)
-# 		data = []
-# 		for x in fd:
-# 			values = x.split(",")
-# 			data.append(values)
-# 		# print(data)
-# 		fd.close()
-# 		return data
-# 	else:
-# 		print("No file found.")
-# 		quit()
-
 def main():
 	if (len(sys.argv) == 2):
 		file_name = sys.argv[1]
@@ -152,13 +139,9 @@ def main():
 		# use numpy arrays to be able to use matplot for data visualisation
 		xs = np.array([float(i[0]) for i in data])
 		ys = np.array([float(i[1]) for i in data])
+		# use matplot to visualize data and prediction line
 		plot_regression_line(xs, ys, coefs)
 	else:
 		print("give the path to a csv file as argument")
 
 main()
-
-# y = mx + b
-# y - y0 = (x - x0)m + b
-# m = (y - b) / x
-# b = y - mx

@@ -148,35 +148,17 @@ class linear_regression:
 # Reads a csv file and returns a list, where each item a list of items on a row.
 # removes the first row if it's not convertible to float
 
-# def read_csv_to_list(file_name):
-# 	fd = open(file_name, "r")
-# 	read_txt = [x.strip() for x in fd]
-# 	fd.close()
-# 	# print(fd)
-# 	try:
-# 		float(read_txt[0])
-# 	except ValueError:
-# 		read_txt.pop(0)
-# 	data = []
-# 	for x in read_txt:
-# 		values = x.split(",")
-# 		data.append(values)
-# 	# print(data)
-# 	return data
-
 def read_csv_to_list(file_name):
 	exists = os.path.exists(file_name)
 	if (exists):
 		fd = open(file_name, "r") #todo: remember to add close fd
-		fd = [x.strip() for x in fd]
-		# print(fd)
-		fd.pop(0)
+		file_read = [x.strip() for x in fd]
+		fd.close()
+		file_read.pop(0)
 		data = []
-		for x in fd:
+		for x in file_read:
 			values = x.split(",")
 			data.append(values)
-		# print(data)
-		fd.close()
 		return data
 	else:
 		print("No file found.")
