@@ -91,10 +91,14 @@ class arr:
 			result += self.array[i] * other.array[i]
 		return result
 
-	def sum_pow(self):
+	def sum_pow(self, num):
 		result = 0
 		for i in range(self.size):
-			result += self.array[i] * self.array[i]
+			temp_result = 1
+			for a in range(num):
+				temp_result *= self.array[i]
+			result += temp_result
+			# result += self.array[i] * self.array[i]
 		return result
 
 	def multiply_scalar(self, scalar):
@@ -138,7 +142,8 @@ class linear_regression:
 	def calculate_loss(self, y_preds):
 		y_preds = y_preds if isinstance(y_preds, arr) else arr(y_preds)
 		n = self.ys.size
-		loss = (1 / (2 * n)) * (y_preds - self.ys).sum_pow()
+		loss = (y_preds - self.ys).sum_pow(2) / n
+		print(loss)
 		return loss
 
 
