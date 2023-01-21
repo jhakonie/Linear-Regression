@@ -46,7 +46,7 @@ def train_model(data, learning_rate):
 	regression = my.linear_regression(xs, ys)
 	# Train the model with gradient decent:
 	# iterate the regression until it is accurate enough
-	while(1):
+	while (1):
 		# predict values (price)
 		y_preds = regression.predict(xs)
 		# update thetas
