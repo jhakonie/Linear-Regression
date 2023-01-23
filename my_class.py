@@ -143,27 +143,67 @@ class linear_regression:
 		y_preds = y_preds if isinstance(y_preds, arr) else arr(y_preds)
 		n = self.ys.size
 		loss = (y_preds - self.ys).sum_pow(2) / n
-		print(loss)
+		# print(loss)
 		return loss
 
+#------------------------------------------------------------------------
+# try if string is float
 
+def is_float(string):
+	try:
+		float(string)
+		return True
+	except ValueError:
+		return False
 
 #------------------------------------------------------------------------
 # csv
 # Reads a csv file and returns a list, where each item a list of items on a row.
 # removes the first row if it's not convertible to float
 
+def validate_file(file_read):
+	# i = 0
+	rows = len(file_read)
+	comma_0 = 0
+	comma_1 = 0
+	# print(len(file_read[1]))
+	# print(file_read[1][1])
+	for i in range(rows - 1):
+		# print(file_read)
+		# print(len(file_read))
+		row = len(file_read[i])
+		for a in range(row - 1):
+			if (file_read[i][a] == ","):
+				comma_0 += 1
+			elif (not is_float((file_read[i][a]))):
+				file_read.pop(i)
+				# return (False)
+		if (i > 0):
+			if (not comma_0 - comma_1 == 0):
+				return (False)
+		comma_1 = comma_0
+		comma_0 = 0
+	# for x in file_read:
+	# 	if (not is_float(x)):
+	# 		file_read.pop(i)
+	# 		i += 1
+	return True
+
 def read_csv_to_list(file_name):
 	exists = os.path.exists(file_name)
 	if (exists):
-		fd = open(file_name, "r") #todo: remember to add close fd
+		fd = open(file_name, "r")
 		file_read = [x.strip() for x in fd]
 		fd.close()
-		file_read.pop(0)
+		i = 0
+		if (not validate_file(file_read)):
+			print("Invalid .csv")
+			quit()
 		data = []
 		for x in file_read:
 			values = x.split(",")
 			data.append(values)
+		print (data)
 		return data
 	else:
 		print("No file found.")

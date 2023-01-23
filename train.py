@@ -22,7 +22,7 @@ def denormalize_coefs(xs, ys, coefs):
 	ys_minus_xs_multiplied_by_t1 = ys - xs_multiplied_by_t1
 	# get the sum of the values
 	denormed_t0 = ys_minus_xs_multiplied_by_t1.sum_self()
-	# divide the sum with the numter of values
+	# divide the sum with the number of values
 	denormed_t0 /= xs.size
 	return (denormed_t0, denormed_t1)
 
@@ -34,6 +34,7 @@ def normalize_list(data):
 
 def train_model(data, learning_rate):
 	losses = []
+	iteration = 0
 	# mileage
 	xs_before_normalize = [float(i[0]) for i in data]
 	# price
@@ -53,16 +54,16 @@ def train_model(data, learning_rate):
 		regression.update_t(learning_rate)
 		# calculate loss with mean squre error
 		loss = regression.calculate_loss(y_preds)
-		if (loss < 0.0207):
-		# if (iteration > 100000):
+		losses.append(loss)
+		if (iteration > 0 and abs(losses[iteration - 1] - losses[iteration]) < 0.00000000001):
 			break
+		iteration += 1
 	coefs = (regression.t[0], regression.t[1])
 	# convert list of values to my array type
 	xs_before_normalize = my.arr(xs_before_normalize)
 	ys_before_normalize = my.arr(ys_before_normalize)
 	# denormalize coefficients using the pre-normalized data
 	coefs = denormalize_coefs(xs_before_normalize, ys_before_normalize, coefs)
-	print(coefs)
 	return (coefs)
 
 # create a file "coefs.csv" and write the learned thetas there
@@ -99,9 +100,6 @@ def estimate_coef(x, y):
 	# calculating regression coefficients
 	b_1 = SS_xy / SS_xx
 	b_0 = m_y - b_1*m_x
-	print("b0 is:" + str(b_0))
-	print("b1 is:" + str(b_1))
-	print("========================================")
 	return (b_0, b_1)
 
 def test_with_numpy(data):
@@ -125,7 +123,7 @@ def main():
 		ys = np.array([float(i[1]) for i in data])
 		# use matplot to visualize data and prediction line
 		plot_regression_line(xs, ys, coefs)
-		# test_with_numpy(data)
+		test_with_numpy(data)
 	else:
 		print("give the path to a csv file as argument")
 
