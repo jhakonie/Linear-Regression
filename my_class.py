@@ -143,8 +143,7 @@ class linear_regression:
 		y_preds = y_preds if isinstance(y_preds, arr) else arr(y_preds)
 		n = self.ys.size
 		loss = (y_preds - self.ys).sum_pow(2) / n
-		# print(loss)
-		return loss
+		return (loss)
 
 #------------------------------------------------------------------------
 # try if a string can be converted to float
@@ -204,7 +203,6 @@ def validate_file(file_read):
 	rows = len(file_read)
 	comma_0 = 0
 	comma_1 = 0
-	print(file_read)
 	# keep track of rows that need to be removed for having non valid characters
 	to_remove = []
 	for i in range(rows):
@@ -239,7 +237,6 @@ def validate_file(file_read):
 	# remove rows with invalid data
 	for i in range(to_remove_len):
 		file_read.pop(to_remove[i])
-	print(file_read)
 	return (file_read)
 
 def read_csv_to_list(file_name):

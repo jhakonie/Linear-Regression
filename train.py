@@ -1,7 +1,6 @@
 import sys
 import matplotlib.pyplot as plt # used for plotting the values
 import my_class as my
-# muista poistaa
 import numpy as np # used for plotting the values, matplot requires numpy-arrays
 
 def denormalize_coefs(xs, ys, coefs):
@@ -55,7 +54,7 @@ def train_model(data, learning_rate):
 		# calculate loss with mean squre error
 		loss = regression.calculate_loss(y_preds)
 		losses.append(loss)
-		if (iteration > 0 and abs(losses[iteration - 1] - losses[iteration]) < 0.00000000001):
+		if (iteration > 0 and abs(losses[iteration - 1] - losses[iteration]) < 0.0000000001):
 			break
 		iteration += 1
 	coefs = (regression.t[0], regression.t[1])
@@ -75,19 +74,18 @@ def save_coefs_to_file(coefs):
 	fd.write(str(coefs[0])+","+str(coefs[1]))
 	fd.close()
 
-def plot_regression_line(x, y, t):
+def plot_regression_line(x, y, t, color_string, style_string):
 	# plotting the data points
 	plt.scatter(x, y, color = "b", marker = "o", s = 30)
 	# predicted y-values
 	y_pred = t[0] + t[1] * x
 	# plotting the regression line
-	plt.plot(x, y_pred, color = "g")
+	plt.plot(x, y_pred, color = color_string, linestyle = style_string)
 	# putting labels
 	plt.xlabel('x')
 	plt.ylabel('y')
-	# function to show plot
-	plt.show()
 
+# The math that actually calculates the result, just for comparison.
 def estimate_coef(x, y):
 	# number of observations/points
 	n = np.size(x)
@@ -102,15 +100,6 @@ def estimate_coef(x, y):
 	b_0 = m_y - b_1*m_x
 	return (b_0, b_1)
 
-def test_with_numpy(data):
-	xs = np.array([float(i[0]) for i in data])
-	ys = np.array([float(i[1]) for i in data])
-	b = estimate_coef(xs, ys)
-	print("b0 is:" + str(b[0]))
-	print("b1 is:" + str(b[1]))
-	plot_regression_line(xs, ys, b)
-	return
-
 def main():
 	if (len(sys.argv) == 2):
 		file_name = sys.argv[1]
@@ -121,9 +110,12 @@ def main():
 		# use numpy arrays to be able to use matplot for data visualisation
 		xs = np.array([float(i[0]) for i in data])
 		ys = np.array([float(i[1]) for i in data])
-		# use matplot to visualize data and prediction line
-		plot_regression_line(xs, ys, coefs)
-		test_with_numpy(data)
+		# Use another function to mathematically calculate the coeffs
+		coefs_math = estimate_coef(xs, ys)
+		# use matplot to visualize data, the prediction line and the calculated line
+		plot_regression_line(xs, ys, coefs_math, "r", "solid")
+		plot_regression_line(xs, ys, coefs, "g", "dotted")
+		plt.show()
 	else:
 		print("give the path to a csv file as argument")
 
