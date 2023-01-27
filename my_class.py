@@ -147,7 +147,7 @@ class linear_regression:
 		return loss
 
 #------------------------------------------------------------------------
-# try if string is float
+# try if a string can be converted to float
 
 def is_float(string):
 	try:
@@ -158,36 +158,89 @@ def is_float(string):
 
 #------------------------------------------------------------------------
 # csv
-# Reads a csv file and returns a list, where each item a list of items on a row.
-# removes the first row if it's not convertible to float
+# Reads a csv file and returns a list of lists that contain the values of each row.
+# removes rows that are not convertible to float
+
+# count commas in a string
+def count_commas(length, string):
+	comma = 0
+	for a in range(length - 1):
+		if (string[a] == ","):
+			comma += 1
+	return comma
+
+def validate_data(length, string):
+	check_list = []
+	# keep track of commas and dots
+	for a in range(length):
+		if (string[a] == ","):
+			check_list.append(string[a])
+		elif (string[a] == "."):
+			check_list.append(string[a])
+	check_list_len = len(check_list)
+	# check that there are no more than one dot between commas
+	for x in range(check_list_len):
+		if (x > 0 and check_list[x] == "." and check_list[x - 1] == "."):
+			return False
+	check_list = []
+	# keep track of - signs and dots
+	for a in range(length):
+		if (string[a] == ","):
+			check_list.append(string[a])
+		# if a - sign is not at the start of the number, it's not valid
+		elif (string[a] == "-"):
+			check_list.append(string[a])
+			if (a > 0 and not string[a - 1] == ","):
+				return False
+	check_list_len = len(check_list)
+	# check that there are no more than 1 - between commas
+	for x in range(check_list_len):
+		if (x > 0 and check_list[x] == "-" and check_list[x - 1] == "-"):
+			return False
+	return True
 
 def validate_file(file_read):
 	# i = 0
 	rows = len(file_read)
 	comma_0 = 0
 	comma_1 = 0
-	# print(len(file_read[1]))
-	# print(file_read[1][1])
-	for i in range(rows - 1):
-		# print(file_read)
-		# print(len(file_read))
+	print(file_read)
+	# keep track of rows that need to be removed for having non valid characters
+	to_remove = []
+	for i in range(rows):
 		row = len(file_read[i])
-		for a in range(row - 1):
+		comma_0 = count_commas(row, file_read[i])
+		if (not validate_data(row, file_read[i])):
+				print("Invalid .csv: too many dots or -")
+				quit()
+		for a in range(row):
+			# comma, dot and - are valid characters, pass them
 			if (file_read[i][a] == ","):
-				comma_0 += 1
+				pass
+			elif (file_read[i][a] == "."):
+				pass
+			elif (file_read[i][a] == "-"):
+				pass
+			# keep track of the indexes of rows that have invalid characters
 			elif (not is_float((file_read[i][a]))):
-				file_read.pop(i)
-				# return (False)
+				to_remove.append(i)
+				break
 		if (i > 0):
+			# check that each line is the same length as the first line
 			if (not comma_0 - comma_1 == 0):
-				return (False)
+				print("Invalid .csv: uneven lines")
+				quit()
 		comma_1 = comma_0
 		comma_0 = 0
-	# for x in file_read:
-	# 	if (not is_float(x)):
-	# 		file_read.pop(i)
-	# 		i += 1
-	return True
+	# update the index of the row to be removed
+	to_remove_len = len(to_remove)
+	for x in range(to_remove_len):
+		to_remove[x] -= x
+	# remove rows with invalid data
+	for i in range(to_remove_len):
+		file_read.pop(to_remove[i])
+	print(file_read)
+	return (file_read)
 
 def read_csv_to_list(file_name):
 	exists = os.path.exists(file_name)
@@ -196,14 +249,11 @@ def read_csv_to_list(file_name):
 		file_read = [x.strip() for x in fd]
 		fd.close()
 		i = 0
-		if (not validate_file(file_read)):
-			print("Invalid .csv")
-			quit()
+		file_read = validate_file(list(file_read))
 		data = []
 		for x in file_read:
 			values = x.split(",")
 			data.append(values)
-		print (data)
 		return data
 	else:
 		print("No file found.")

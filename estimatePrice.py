@@ -11,35 +11,38 @@ def estimate_price(mileage, coef):
 	price = coef.t0 + coef.t1 * mileage
 	return price
 
-def read_coef():
-	exists = os.path.exists("coefs.csv")
+def read_coef(file_name):
+	# if there is a file with the thetas saved, read it
+	exists = os.path.exists(file_name)
 	if (exists):
-		data = my.read_csv_to_list("coefs.csv")
+		data = my.read_csv_to_list(file_name)
 		t0 = float(data[0][0])
 		t1 = float(data[0][1])
 		coef = theta(t0, t1)
 		return coef
+	# if there isn't train a model, ask for a file name or quit
 	else:
-		user_input = input("No model trained, train model now with data.csv? y/n\n")
+		user_input = input("No model trained, train model? y/n\n")
 		if (user_input == "y"):
-			os.system("python3 train.py 1data.csv")
-			coef = read_coef()
+			user_file_name = input("Please insert .csv file name to train model.\n")
+			command = "python3 train.py "+user_file_name
+			os.system(command)
+			coef = read_coef(user_file_name)
 			return (coef)
 		else:
-			print("Unable to predict price without a model, quit.")
-			quit()
-
-def is_float(string):
-	try:
-		float(string)
-		return True
-	except ValueError:
-		return False
+			user_input = input("Do you already have thetas saved in a .csv file? y/n\n")
+			if (user_input == "y"):
+				user_file_name = input("Please insert .csv file name to use as thetas.\n")
+				coef = read_coef(user_file_name)
+				return (coef)
+			else:
+				print("Unable to predict price without a model, quit.")
+				quit()
 
 def main():
 	mileage = input("Please input mileage to estimate price.\n")
 	while (1):
-		if (is_float(mileage)):
+		if (my.is_float(mileage)):
 			mileage = float(mileage)
 			if (mileage < 0):
 				mileage = "NA"
@@ -47,7 +50,7 @@ def main():
 			break
 		else:
 			mileage = input("Please input proper mileage to estimate price.\n")
-	coef = read_coef()
+	coef = read_coef("coefs.csv")
 	estimated_price = estimate_price(mileage, coef)
 	if estimated_price < 0:
 		estimated_price = 0
