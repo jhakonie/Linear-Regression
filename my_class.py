@@ -2,7 +2,9 @@ import math
 import os
 
 #------------------------------------------------------------------------------
+# Array class, recreate some functionalities of numpy arrays
 # Array operations - + * and sum for multiplying, adding, substraction and pow
+#------------------------------------------------------------------------------
 
 class arr:
 	def __init__(self, array):
@@ -108,7 +110,8 @@ class arr:
 		return result
 
 #------------------------------------------------------------------------
-# Linear Regression
+# Linear Regression class
+#------------------------------------------------------------------------
 
 class linear_regression:
 	def __init__(self, xs, ys):
@@ -123,7 +126,6 @@ class linear_regression:
 		ys = self.ys
 		xs = self.xs
 		n = float(ys.size)
-
 		# sum of predicted y-values - true y-values
 		y_difference = y_preds - ys
 		self.t[0] = self.t[0] - (learning_rate * (1 / n) * y_difference.sum_self())
@@ -146,7 +148,8 @@ class linear_regression:
 		return (loss)
 
 #------------------------------------------------------------------------
-# try if a string can be converted to float
+# Try if a string can be converted to float
+#------------------------------------------------------------------------
 
 def is_float(string):
 	try:
@@ -155,15 +158,16 @@ def is_float(string):
 	except ValueError:
 		return False
 
-#------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 # csv
 # Reads a csv file and returns a list of lists that contain the values of each row.
 # removes rows that are not convertible to float
+#------------------------------------------------------------------------------------
 
 # count commas in a string
 def count_commas(length, string):
 	comma = 0
-	for a in range(length - 1):
+	for a in range(length):
 		if (string[a] == ","):
 			comma += 1
 	return comma
@@ -192,7 +196,7 @@ def validate_data(length, string):
 			if (a > 0 and not string[a - 1] == ","):
 				return False
 	check_list_len = len(check_list)
-	# check that there are no more than 1 - between commas
+	# check that there are no more than one "-" between commas
 	for x in range(check_list_len):
 		if (x > 0 and check_list[x] == "-" and check_list[x - 1] == "-"):
 			return False

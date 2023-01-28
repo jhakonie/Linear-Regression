@@ -1,91 +1,32 @@
 import sys
-import matplotlib.pyplot as plt # used for plotting the values
 import my_class as my
-import numpy as np # used for plotting the values, matplot requires numpy-arrays
+import matplotlib.pyplot as plt # used for plotting the values
+import numpy as np # used for plotting the values, matplotlib requires numpy-arrays
+import matplotlib.animation as animation # used to create an animation of the regression
 
-def denormalize_coefs(xs, ys, coefs):
-	max_x = max(xs.array)
-	min_x = min(xs.array)
-	max_y = max(ys.array)
-	min_y = min(ys.array)
-	x_diff = max_x - min_x
-	y_diff = max_y - min_y
-	denormed_t1 = coefs[1] * y_diff / x_diff
-	#
-	# y = t1 * x + t0
-	# t0 = y - t1 * x
-	#
-	# t1 * x
-	xs_multiplied_by_t1 = xs.multiply_scalar(denormed_t1)
-	# y - t1 * x
-	ys_minus_xs_multiplied_by_t1 = ys - xs_multiplied_by_t1
-	# get the sum of the values
-	denormed_t0 = ys_minus_xs_multiplied_by_t1.sum_self()
-	# divide the sum with the number of values
-	denormed_t0 /= xs.size
-	return (denormed_t0, denormed_t1)
+# ------------------------------------------------------------------------------------------------------
+# Some global variables to help create an animation
+# ------------------------------------------------------------------------------------------------------
+argument_count = len(sys.argv) # these are global, to make visualisation easier
+if (argument_count == 2 or argument_count == 3):
+	file_name = sys.argv[1]
+	# read the csv-file to an array
+	data = my.read_csv_to_list(file_name)
+	xs = np.array([float(i[0]) for i in data])
+	ys = np.array([float(i[1]) for i in data])
 
-def normalize_list(data):
-	max_x = max(data)
-	min_x = min(data)
-	xs = [(i - min_x) / (max_x - min_x) for i in data]
-	return (xs)
+fig, ax = plt.subplots()
+x = np.arange(min(xs), max(xs), 0.5)
+t = (0, 0)
+line, = ax.plot(x, t[0] + t[1] * x)
 
-def train_model(data, learning_rate):
-	losses = []
-	iteration = 0
-	# mileage
-	xs_before_normalize = [float(i[0]) for i in data]
-	# price
-	ys_before_normalize = [float(i[1]) for i in data]
-	# normalize data
-	xs = normalize_list(xs_before_normalize)
-	ys = normalize_list(ys_before_normalize)
-	learning_rate = 0.1
-	# declare the linear regression class
-	regression = my.linear_regression(xs, ys)
-	# Train the model with gradient decent:
-	# iterate the regression until it is accurate enough
-	while (1):
-		# predict values (price)
-		y_preds = regression.predict(xs)
-		# update thetas
-		regression.update_t(learning_rate)
-		# calculate loss with mean squre error
-		loss = regression.calculate_loss(y_preds)
-		losses.append(loss)
-		if (iteration > 0 and abs(losses[iteration - 1] - losses[iteration]) < 0.0000000001):
-			break
-		iteration += 1
-	coefs = (regression.t[0], regression.t[1])
-	# convert list of values to my array type
-	xs_before_normalize = my.arr(xs_before_normalize)
-	ys_before_normalize = my.arr(ys_before_normalize)
-	# denormalize coefficients using the pre-normalized data
-	coefs = denormalize_coefs(xs_before_normalize, ys_before_normalize, coefs)
-	return (coefs)
+# save coefs in a list during training to create an animation later
+coefs_list = []
 
-# create a file "coefs.csv" and write the learned thetas there
-def save_coefs_to_file(coefs):
-	fd = open("coefs.csv", "w")
-	fd.close()
-	fd = open("coefs.csv", "a")
-	fd.write("t0,t1\n")
-	fd.write(str(coefs[0])+","+str(coefs[1]))
-	fd.close()
+# ------------------------------------------------------------------------------------------------------
+# The math that actually calculates the "correct" result, just for comparison.
+# ------------------------------------------------------------------------------------------------------
 
-def plot_regression_line(x, y, t, color_string, style_string):
-	# plotting the data points
-	plt.scatter(x, y, color = "b", marker = "o", s = 30)
-	# predicted y-values
-	y_pred = t[0] + t[1] * x
-	# plotting the regression line
-	plt.plot(x, y_pred, color = color_string, linestyle = style_string)
-	# putting labels
-	plt.xlabel('x')
-	plt.ylabel('y')
-
-# The math that actually calculates the result, just for comparison.
 def estimate_coef(x, y):
 	# number of observations/points
 	n = np.size(x)
@@ -100,22 +41,146 @@ def estimate_coef(x, y):
 	b_0 = m_y - b_1*m_x
 	return (b_0, b_1)
 
+# ------------------------------------------------------------------------------------------------------
+# Visualisation
+# ------------------------------------------------------------------------------------------------------
+
+def plot_regression_line(x, y, t, color_string, style_string):
+	# predicted y-values
+	y_pred = t[0] + t[1] * x
+	# plotting the regression line
+	plt.plot(x, y_pred, color = color_string, linestyle = style_string)
+
+def animate(i):
+	t = coefs_list[i]
+	line.set_ydata((t[0] + t[1] * x)) # update the data.
+	return line,
+
+def visualise_results(coefs):
+	# use numpy arrays to be able to use matplot for data visualisation
+	xs = np.array([float(i[0]) for i in data])
+	ys = np.array([float(i[1]) for i in data])
+	# putting labels
+	plt.xlabel('mileage')
+	plt.ylabel('price')
+	# Use another function to mathematically calculate the coeffs
+	coefs_math = estimate_coef(xs, ys)
+	# use matplot to visualize data, the prediction line (g) and the calculated line (r)
+	plot_regression_line(xs, ys, coefs_math, "r", "solid")
+	plot_regression_line(xs, ys, coefs, "g", "dotted")
+	# plotting the data points
+	ani = animation.FuncAnimation(fig, animate, interval=1, blit=True, frames=len(coefs_list))
+	plt.scatter(xs, ys, color = "m", marker = "o", s = 40)
+	plt.show()
+
+	# To save the animation
+	#
+	# ani.save("movie.mp4")
+
+# ------------------------------------------------------------------------------------------------------
+# Denormalize coefficients
+# ------------------------------------------------------------------------------------------------------
+
+def denormalize_coefs(xs, ys, coefs):
+	xs = xs if isinstance(xs, my.arr) else my.arr(xs)
+	ys = ys if isinstance(ys, my.arr) else my.arr(ys)
+	max_x = max(xs.array)
+	min_x = min(xs.array)
+	max_y = max(ys.array)
+	min_y = min(ys.array)
+	x_diff = max_x - min_x
+	y_diff = max_y - min_y
+	denormed_t1 = coefs[1] * y_diff / x_diff
+	# y = t1 * x + t0
+	# t0 = y - t1 * x
+	# 
+	# t1 * x
+	xs_multiplied_by_t1 = xs.multiply_scalar(denormed_t1)
+	# y - t1 * x
+	ys_minus_xs_multiplied_by_t1 = ys - xs_multiplied_by_t1
+	# get the sum of the values
+	denormed_t0 = ys_minus_xs_multiplied_by_t1.sum_self()
+	# divide the sum with the number of values
+	denormed_t0 /= xs.size
+	return (denormed_t0, denormed_t1)
+
+# ------------------------------------------------------------------------------------------------------
+# Normalize the values of a list
+# ------------------------------------------------------------------------------------------------------
+
+def normalize_list(data):
+	max_x = max(data)
+	min_x = min(data)
+	xs = [(i - min_x) / (max_x - min_x) for i in data]
+	return (xs)
+
+# ------------------------------------------------------------------------------------------------------
+# Train with gradient descent
+# ------------------------------------------------------------------------------------------------------
+
+def train_model(data, plot_on):
+	# initialize the list of loss values
+	losses = []
+	# mileage
+	xs_before_normalize = [float(i[0]) for i in data]
+	# price
+	ys_before_normalize = [float(i[1]) for i in data]
+	test_xs = np.array([float(i[0]) for i in data])
+	test_ys = np.array([float(i[1]) for i in data])
+	# normalize data
+	xs = normalize_list(xs_before_normalize)
+	ys = normalize_list(ys_before_normalize)
+	learning_rate = 0.1
+	# declare the linear regression class, see my_plass.py for definition
+	regression = my.linear_regression(xs, ys)
+	# Train the model with gradient descent: iterate the regression until it is accurate enough
+	iteration = 0
+	while (1):
+		# predict values (price)
+		y_preds = regression.predict(xs)
+		# update thetas
+		regression.update_t(learning_rate)
+		# calculate loss with mean squre error
+		loss = regression.calculate_loss(y_preds)
+		# save loss
+		losses.append(loss)
+		# compare to the previous loss and stop, if the difference is small enough
+		if (iteration > 0 and abs(losses[iteration - 1] - losses[iteration]) < 0.00000000001):
+			break
+		iteration += 1
+		coefs = (regression.t[0], regression.t[1])
+		coefs = denormalize_coefs(xs_before_normalize, ys_before_normalize, coefs)
+		# keep a list of the normalized thetas, for visualization later
+		coefs_list.append(coefs)
+		# plot the result with matplotlib, if the plot_on flag is on
+		if (plot_on):
+			plot_regression_line(test_xs, test_ys, coefs, "g", "dotted")
+	return (coefs)
+
+# ------------------------------------------------------------------------------------------------------
+# Create a file "coefs.csv" and write the learned thetas there
+# ------------------------------------------------------------------------------------------------------
+
+def save_coefs_to_file(coefs):
+	fd = open("coefs.csv", "w")
+	fd.close()
+	fd = open("coefs.csv", "a")
+	fd.write("t0,t1\n")
+	fd.write(str(coefs[0])+","+str(coefs[1]))
+	fd.close()
+
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
 def main():
-	if (len(sys.argv) == 2):
-		file_name = sys.argv[1]
-		# read the csv-file to an array
-		data = my.read_csv_to_list(file_name)
-		coefs = train_model(data, 0.1)
+	if (argument_count == 2 or argument_count == 3):
+		if (argument_count == 2):
+			plot_on = False
+		else:
+			plot_on = True
+		coefs = train_model(data, plot_on)
 		save_coefs_to_file(coefs)
-		# use numpy arrays to be able to use matplot for data visualisation
-		xs = np.array([float(i[0]) for i in data])
-		ys = np.array([float(i[1]) for i in data])
-		# Use another function to mathematically calculate the coeffs
-		coefs_math = estimate_coef(xs, ys)
-		# use matplot to visualize data, the prediction line and the calculated line
-		plot_regression_line(xs, ys, coefs_math, "r", "solid")
-		plot_regression_line(xs, ys, coefs, "g", "dotted")
-		plt.show()
+		visualise_results(coefs)
 	else:
 		print("give the path to a csv file as argument")
 
