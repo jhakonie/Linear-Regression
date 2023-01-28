@@ -14,11 +14,10 @@ if (argument_count == 2 or argument_count == 3):
 	data = my.read_csv_to_list(file_name)
 	xs = np.array([float(i[0]) for i in data])
 	ys = np.array([float(i[1]) for i in data])
-
-fig, ax = plt.subplots()
-x = np.arange(min(xs), max(xs), 0.5)
-t = (0, 0)
-line, = ax.plot(x, t[0] + t[1] * x)
+	fig, ax = plt.subplots()
+	x = np.arange(min(xs), max(xs), 0.5)
+	t = (0, 0)
+	line, = ax.plot(x, t[0] + t[1] * x)
 
 # save coefs in a list during training to create an animation
 coefs_list = []
@@ -182,6 +181,6 @@ def main():
 		save_coefs_to_file(coefs)
 		visualise_results(coefs)
 	else:
-		print("give the path to a csv file as argument")
+		print("give the path to a csv file as argument.")
 
 main()
