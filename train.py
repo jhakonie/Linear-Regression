@@ -7,7 +7,7 @@ import matplotlib.animation as animation # used to create an animation of the re
 # ------------------------------------------------------------------------------------------------------
 # Some global variables to help create an animation
 # ------------------------------------------------------------------------------------------------------
-argument_count = len(sys.argv) # these are global, to make visualisation easier
+argument_count = len(sys.argv)
 if (argument_count == 2 or argument_count == 3):
 	file_name = sys.argv[1]
 	# read the csv-file to an array
@@ -20,11 +20,11 @@ x = np.arange(min(xs), max(xs), 0.5)
 t = (0, 0)
 line, = ax.plot(x, t[0] + t[1] * x)
 
-# save coefs in a list during training to create an animation later
+# save coefs in a list during training to create an animation
 coefs_list = []
 
 # ------------------------------------------------------------------------------------------------------
-# The math that actually calculates the "correct" result, just for comparison.
+# The math that actually calculates the "correct" result. Used just for comparison.
 # ------------------------------------------------------------------------------------------------------
 
 def estimate_coef(x, y):
@@ -125,7 +125,7 @@ def train_model(data, plot_on):
 	xs_before_normalize = [float(i[0]) for i in data]
 	# price
 	ys_before_normalize = [float(i[1]) for i in data]
-	test_xs = np.array([float(i[0]) for i in data])
+	plot_xs = np.array([float(i[0]) for i in data])
 	test_ys = np.array([float(i[1]) for i in data])
 	# normalize data
 	xs = normalize_list(xs_before_normalize)
@@ -154,7 +154,7 @@ def train_model(data, plot_on):
 		coefs_list.append(coefs)
 		# plot the result with matplotlib, if the plot_on flag is on
 		if (plot_on):
-			plot_regression_line(test_xs, test_ys, coefs, "g", "dotted")
+			plot_regression_line(plot_xs, plot_ys, coefs, "g", "dotted")
 	return (coefs)
 
 # ------------------------------------------------------------------------------------------------------
