@@ -1,5 +1,6 @@
-## ft_linear_regression
-An introduction to machine learning
+## ft_linear_regression - An introduction to machine learning
+
+![demo](linear_regression_data.webp)
 
 ### Subject
 
@@ -31,6 +32,8 @@ To estimate price run:
 Coefficients are saved and used to create an animation. train.py uses gradient descent in training the model.
 
 
-![demo](linear_regression_data.webp)
-
 ![demo](linear_regression.webp)
+
+## License
+
+[GNU AGPLv3](https://choosealicense.com/licenses/agpl-3.0/)
