@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import my_class as my
 import matplotlib.pyplot as plt # used for plotting the values
@@ -23,7 +24,7 @@ if (argument_count == 2 or argument_count == 3):
 coefs_list = []
 
 # ------------------------------------------------------------------------------------------------------
-# The math that actually calculates the "correct" result. Used just for comparison.
+# The math that actually calculates the analytical, "correct", result. Used just for comparison.
 # ------------------------------------------------------------------------------------------------------
 
 def estimate_coef(x, y):
@@ -33,11 +34,11 @@ def estimate_coef(x, y):
 	m_x = np.mean(x)
 	m_y = np.mean(y)
 	# calculating cross-deviation and deviation about x
-	SS_xy = np.sum(y*x) - n*m_y*m_x
-	SS_xx = np.sum(x*x) - n*m_x*m_x
+	SS_xy = np.sum(y * x) - n * m_y * m_x
+	SS_xx = np.sum(x * x) - n * m_x * m_x
 	# calculating regression coefficients
 	b_1 = SS_xy / SS_xx
-	b_0 = m_y - b_1*m_x
+	b_0 = m_y - b_1 * m_x
 	return (b_0, b_1)
 
 # ------------------------------------------------------------------------------------------------------
@@ -68,12 +69,11 @@ def visualise_results(coefs):
 	plot_regression_line(xs, ys, coefs_math, "r", "solid")
 	plot_regression_line(xs, ys, coefs, "g", "dotted")
 	# plotting the data points
-	ani = animation.FuncAnimation(fig, animate, interval=1, blit=True, frames=len(coefs_list))
+	ani = animation.FuncAnimation(fig, animate, interval=1.0, blit=False, frames=len(coefs_list))
 	plt.scatter(xs, ys, color = "m", marker = "o", s = 40)
 	plt.show()
 
 	# To save the animation
-	#
 	# ani.save("movie.mp4")
 
 # ------------------------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ def denormalize_coefs(xs, ys, coefs):
 	denormed_t1 = coefs[1] * y_diff / x_diff
 	# y = t1 * x + t0
 	# t0 = y - t1 * x
-	# 
+	#
 	# t1 * x
 	xs_multiplied_by_t1 = xs.multiply_scalar(denormed_t1)
 	# y - t1 * x
@@ -125,7 +125,7 @@ def train_model(data, plot_on):
 	# price
 	ys_before_normalize = [float(i[1]) for i in data]
 	plot_xs = np.array([float(i[0]) for i in data])
-	test_ys = np.array([float(i[1]) for i in data])
+	plot_ys = np.array([float(i[1]) for i in data])
 	# normalize data
 	xs = normalize_list(xs_before_normalize)
 	ys = normalize_list(ys_before_normalize)
@@ -139,7 +139,7 @@ def train_model(data, plot_on):
 		y_preds = regression.predict(xs)
 		# update thetas
 		regression.update_t(learning_rate)
-		# calculate loss with mean squre error
+		# calculate loss with mean square error
 		loss = regression.calculate_loss(y_preds)
 		# save loss
 		losses.append(loss)

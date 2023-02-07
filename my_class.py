@@ -151,9 +151,9 @@ class linear_regression:
 # Try if a string can be converted to float
 #------------------------------------------------------------------------
 
-def is_float(string):
+def is_float(value):
 	try:
-		float(string)
+		float(value)
 		return True
 	except ValueError:
 		return False
@@ -244,7 +244,7 @@ def validate_file(file_read):
 	return (file_read)
 
 def read_csv_to_list(file_name):
-	exists = os.path.exists(file_name)
+	exists = os.path.isfile(file_name)
 	if (exists):
 		fd = open(file_name, "r")
 		file_read = [x.strip() for x in fd]
