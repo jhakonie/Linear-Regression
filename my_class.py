@@ -203,7 +203,6 @@ def validate_data(length, string):
 	return True
 
 def validate_file(file_read):
-	# i = 0
 	rows = len(file_read)
 	comma_0 = 0
 	comma_1 = 0
